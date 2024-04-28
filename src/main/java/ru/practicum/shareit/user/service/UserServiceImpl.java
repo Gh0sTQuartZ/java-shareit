@@ -14,6 +14,7 @@ import java.util.stream.*;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserDao userDao;
+
     @Override
     public List<UserDto> getAll() {
         return userDao.getAll().stream()
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto get(long id) {
         return UserMapper.toUserDto(userDao.get(id)
-                        .orElseThrow(() -> new NotFoundException("Пользователь id=" + id + " не найден")));
+                .orElseThrow(() -> new NotFoundException("Пользователь id=" + id + " не найден")));
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.util.stream.*;
 
 @Component
 public class UserDaoImpl implements UserDao {
-    private Map<Long, User> data = new HashMap<>();
+    private final Map<Long, User> data = new HashMap<>();
     private long idCounter = 1;
 
     @Override

@@ -8,7 +8,7 @@ import java.util.stream.*;
 
 @Component
 public class ItemDaoImpl implements ItemDao {
-    private Map<Long, Item> data = new HashMap<>();
+    private final Map<Long, Item> data = new HashMap<>();
     private long idCounter = 1;
 
     @Override
@@ -57,7 +57,7 @@ public class ItemDaoImpl implements ItemDao {
         return data.values().stream()
                 .filter(i -> (i.getName().toLowerCase().contains(text) ||
                         i.getDescription().toLowerCase().contains(text) &&
-                        i.getAvailable()))
+                                i.getAvailable()))
                 .collect(Collectors.toList());
     }
 }
