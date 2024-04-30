@@ -62,6 +62,6 @@ public class UserDaoImpl implements UserDao {
     }
 
     private boolean isEmailExists(User user) {
-        return userEmailMap.containsKey(user.getEmail()) && userEmailMap.get(user.getEmail()) != user.getId();
+        return userEmailMap.containsKey(user.getEmail()) && !userEmailMap.get(user.getEmail()).equals(user.getId());
     }
 }
