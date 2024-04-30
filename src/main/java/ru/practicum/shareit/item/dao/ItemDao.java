@@ -11,7 +11,7 @@ public interface ItemDao {
 
     Item create(Item item);
 
-    Item patch(Item item);
+    Item update(Item item);
 
     List<Item> search(String keyword);
 }

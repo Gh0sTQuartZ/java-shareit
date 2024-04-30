@@ -9,9 +9,9 @@ public interface UserDao {
 
     Optional<User> get(long id);
 
-    Optional<User> create(User user);
+    User create(User user);
 
-    Optional<User> patch(User user);
+    User update(User user);
 
-    Optional<User> delete(Long id);
+    void delete(Long id);
 }

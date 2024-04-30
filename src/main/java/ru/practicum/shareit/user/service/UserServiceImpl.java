@@ -31,50 +31,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        validate(user);
 
-        User created = userDao.create(user)
-                .orElseThrow(() -> new AlreadyExistsException("Email=" + user.getEmail() + " уже занят"));
+        User created = userDao.create(user);
 
         return UserMapper.toUserDto(created);
     }
 
     @Override
-    public UserDto patch(long id, UserDto userDto) {
+    public UserDto update(UserDto userDto) {
+        long id = userDto.getId();
         userDao.get(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + id + " не найден"));
-        if (userDto.getEmail() != null && !isValidEmailAddress(userDto.getEmail())) {
-            throw new ValidateException("Email не соответствует стандартам записи");
-        }
 
         User user = UserMapper.toUser(userDto);
         user.setId(id);
 
-        User patchedUser = userDao.patch(user)
-                .orElseThrow(() -> new AlreadyExistsException("Email=" + user.getEmail() + " уже занят"));
+        User patchedUser = userDao.update(user);
 
         return UserMapper.toUserDto(patchedUser);
     }
 
     @Override
-    public UserDto delete(long id) {
-        return UserMapper.toUserDto(userDao.delete(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь id=" + id + " не найден")));
-    }
-
-    private void validate(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            throw new ValidateException("Имя пользователя не может быть пустым");
-        }
-        if (user.getEmail() == null || !isValidEmailAddress(user.getEmail())) {
-            throw new ValidateException("Email не соответствует стандартам записи");
-        }
-    }
-
-    public boolean isValidEmailAddress(String email) {
-        String ePattern = "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$";
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile(ePattern);
-        java.util.regex.Matcher m = p.matcher(email);
-        return m.matches();
+    public void delete(long id) {
+        userDao.delete(id);
     }
 }

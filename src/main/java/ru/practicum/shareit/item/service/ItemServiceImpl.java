@@ -36,13 +36,13 @@ public class ItemServiceImpl implements ItemService {
         User user = userDao.get(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         Item item = ItemMapper.toItem(itemDto);
-        validate(item);
         item.setOwner(user);
         return ItemMapper.toItemDto(itemDao.create(item));
     }
 
     @Override
-    public ItemDto patch(long userId, long id, ItemDto itemDto) {
+    public ItemDto update(long userId, ItemDto itemDto) {
+        long id = itemDto.getId();
         userDao.get(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         Item existingItem = itemDao.get(id)
@@ -51,27 +51,26 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Пользователь id=" + userId + " не является владельцем предмета id=" + id);
         }
 
-        Item item = ItemMapper.toItem(itemDto);
-        item.setId(id);
-        return ItemMapper.toItemDto(itemDao.patch(item));
+        if (itemDto.getName() != null) {
+            existingItem.setName(itemDto.getName());
+        }
+        if (itemDto.getDescription() != null) {
+            existingItem.setDescription(itemDto.getDescription());
+        }
+        if (itemDto.getAvailable() != null) {
+            existingItem.setAvailable(itemDto.getAvailable());
+        }
+
+        return ItemMapper.toItemDto(itemDao.update(existingItem));
     }
 
     @Override
     public List<ItemDto> search(String keyword) {
+        if (keyword.isBlank()) {
+            return Collections.emptyList();
+        }
         return itemDao.search(keyword).stream()
                 .map(ItemMapper::toItemDto)
                 .collect(Collectors.toList());
-    }
-
-    private void validate(Item item) {
-        if (item.getName() == null || item.getName().isBlank()) {
-            throw new ValidateException("Название предмета не может быть пустым");
-        }
-        if (item.getDescription() == null || item.getDescription().isBlank()) {
-            throw new ValidateException("Описание предмета не может быть пустым");
-        }
-        if (item.getAvailable() == null) {
-            throw new ValidateException("Статус доступности предмета не может быть пустым");
-        }
     }
 }

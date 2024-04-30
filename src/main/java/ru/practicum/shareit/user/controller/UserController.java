@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.*;
 import ru.practicum.shareit.user.service.*;
 
+import javax.validation.*;
 import java.util.*;
 
 @RestController
@@ -28,21 +29,22 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto create(@RequestBody final UserDto userDto) {
+    public UserDto create(@Valid @RequestBody final UserDto userDto) {
         log.info("Создание пользователя");
         return service.create(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto patch(@PathVariable final long userId,
-                         @RequestBody final UserDto userDto) {
+    public UserDto update(@PathVariable final long userId,
+                          @RequestBody final UserDto userDto) {
         log.info("Изменение пользователя id=" + userId);
-        return service.patch(userId, userDto);
+        userDto.setId(userId);
+        return service.update(userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public UserDto delete(@PathVariable final long userId) {
+    public void delete(@PathVariable final long userId) {
         log.info("Удаление пользователя id=" + userId);
-        return service.delete(userId);
+        service.delete(userId);
     }
 }

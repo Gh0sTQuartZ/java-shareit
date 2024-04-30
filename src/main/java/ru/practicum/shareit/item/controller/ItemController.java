@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.*;
 
+import javax.validation.*;
 import java.util.*;
 
 @RestController
@@ -29,17 +30,18 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
-                          @RequestBody ItemDto itemDto) {
+                          @Valid @RequestBody ItemDto itemDto) {
         log.info("Добавление предмета пользователем id=" + userId);
         return service.create(userId, itemDto);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto patch(@RequestHeader("X-Sharer-User-Id") long userId,
-                         @PathVariable long itemId,
-                         @RequestBody ItemDto itemDto) {
+    public ItemDto update(@RequestHeader("X-Sharer-User-Id") long userId,
+                          @PathVariable long itemId,
+                          @RequestBody ItemDto itemDto) {
         log.info("Изменение предмета id=" + itemId);
-        return service.patch(userId, itemId, itemDto);
+        itemDto.setId(itemId);
+        return service.update(userId, itemDto);
     }
 
     @GetMapping("/search")
