@@ -19,20 +19,28 @@ public class ItemController {
     @GetMapping
     public List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получение списка всех пердметов пользователя id=" + userId);
-        return service.getAll(userId);
+        List<ItemDto> all = service.getAll(userId);
+        log.info("Размер полученного списка= " + all.size());
+        log.debug("Полученный список: " + all);
+        return all;
     }
 
     @GetMapping("/{itemId}")
     public ItemDto get(@PathVariable long itemId) {
         log.info("Получение предмета id=" + itemId);
-        return service.get(itemId);
+        ItemDto item = service.get(itemId);
+        log.info("Полученный предмет: " + item);
+        return item;
     }
 
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
                           @Valid @RequestBody ItemDto itemDto) {
         log.info("Добавление предмета пользователем id=" + userId);
-        return service.create(userId, itemDto);
+        ItemDto item = service.create(userId, itemDto);
+        log.info("id созданного предмета = " + item.getId());
+        log.debug("Созданный предмет: " + item);
+        return item;
     }
 
     @PatchMapping("/{itemId}")
@@ -41,12 +49,18 @@ public class ItemController {
                           @RequestBody ItemDto itemDto) {
         log.info("Изменение предмета id=" + itemId);
         itemDto.setId(itemId);
-        return service.update(userId, itemDto);
+        ItemDto update = service.update(userId, itemDto);
+        log.info("Предмет id=" + itemId + " изменён");
+        log.debug("Изменённый предмет: " + update);
+        return update;
     }
 
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam String text) {
         log.info("Поиск предмета по ключевому слову=" + text);
-        return service.search(text);
+        List<ItemDto> search = service.search(text);
+        log.info("Количество найденных предметов=" + search.size());
+        log.debug("Найденные предметы: " + search);
+        return search;
     }
 }
