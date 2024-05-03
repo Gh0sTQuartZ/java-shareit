@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.dto.*;
 import ru.practicum.shareit.user.service.*;
 import ru.practicum.shareit.validation.*;
 
+import javax.validation.*;
 import java.util.*;
 
 @RestController
@@ -35,8 +36,8 @@ public class UserController {
     }
 
     @PostMapping
-    public UserDto create(@Validated({BasicInfo.class, AdvanceInfo.class})
-                              @RequestBody final UserDto userDto) {
+    @Validated(Update.class)
+    public UserDto create(@Valid @RequestBody final UserDto userDto) {
         log.info("Создание пользователя");
         UserDto user = service.create(userDto);
         log.info("id созданного пользователя= " + user.getId());
@@ -46,7 +47,7 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     public UserDto update(@PathVariable final long userId,
-                          @Validated(BasicInfo.class) @RequestBody final UserDto userDto) {
+                          @Validated(Update.class) @RequestBody final UserDto userDto) {
         log.info("Изменение пользователя id=" + userId);
         userDto.setId(userId);
         UserDto update = service.update(userDto);
