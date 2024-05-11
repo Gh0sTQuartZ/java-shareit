@@ -32,6 +32,30 @@ public class RestControllerAdviser {
         return errorDto;
     }
 
+    @ExceptionHandler(AvailableException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorDto handleAvailableException(final AvailableException exception) {
+        final ErrorDto errorDto = new ErrorDto(exception.getClass().getName(), exception.getMessage());
+        log.warn("Выброшено исключение: " + exception.getClass() + " сообщение: " + exception.getMessage());
+        return errorDto;
+    }
+
+    @ExceptionHandler(DateException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorDto handleDateException(final DateException exception) {
+        final ErrorDto errorDto = new ErrorDto(exception.getClass().getName(), exception.getMessage());
+        log.warn("Выброшено исключение: " + exception.getClass() + " сообщение: " + exception.getMessage());
+        return errorDto;
+    }
+
+    @ExceptionHandler(NotSupportedException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public ErrorDto handleNotSupportedException(final NotSupportedException exception) {
+        final ErrorDto errorDto = new ErrorDto(exception.getClass().getName(), exception.getMessage());
+        log.warn("Выброшено исключение: " + exception.getClass() + " сообщение: " + exception.getMessage());
+        return errorDto;
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorDto handleException(final Exception exception) {

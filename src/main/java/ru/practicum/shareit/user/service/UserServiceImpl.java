@@ -13,46 +13,46 @@ import java.util.stream.*;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao;
+    private final UserRepository repository;
 
     @Override
     public List<UserDto> getAll() {
-        return userDao.getAll().stream()
+        return repository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserDto get(long id) {
-        return UserMapper.toUserDto(userDao.get(id)
+        return UserMapper.toUserDto(repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + id + " не найден")));
     }
 
     @Override
     public UserDto create(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-
-        User created = userDao.create(user);
-
-        return UserMapper.toUserDto(created);
+        User save = repository.save(user);
+        return UserMapper.toUserDto(save);
     }
 
     @Override
     public UserDto update(UserDto userDto) {
-        long id = userDto.getId();
-        userDao.get(id)
-                .orElseThrow(() -> new NotFoundException("Пользователь id=" + id + " не найден"));
+        User user = repository.findById(userDto.getId())
+                .orElseThrow(() -> new NotFoundException("Пользователь id=" + userDto.getId() + " не найден"));
+        if (userDto.getName() != null) {
+            user.setName(userDto.getName());
+        }
+        if (userDto.getEmail() != null) {
+            user.setEmail(userDto.getEmail());
+        }
 
-        User user = UserMapper.toUser(userDto);
-        user.setId(id);
+        User save = repository.save(user);
 
-        User patchedUser = userDao.update(user);
-
-        return UserMapper.toUserDto(patchedUser);
+        return UserMapper.toUserDto(save);
     }
 
     @Override
     public void delete(long id) {
-        userDao.delete(id);
+        repository.deleteById(id);
     }
 }
