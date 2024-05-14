@@ -39,9 +39,9 @@ public class ItemServiceImpl implements ItemService {
         List<Comment> comments = commentRepository.findByItem_Owner_id(userId);
         itemDto.stream().forEach(i -> {
             setBookings(i,
-                    bookings.stream().filter(b -> b.getItem().getId() == i.getId()).collect(Collectors.toList()));
+                    bookings.stream().filter(b -> b.getItem().getId().equals(i.getId())).collect(Collectors.toList()));
             setComments(i,
-                    comments.stream().filter(c -> c.getItem().getId() == i.getId()).collect(Collectors.toList()));
+                    comments.stream().filter(c -> c.getItem().getId().equals(i.getId())).collect(Collectors.toList()));
         });
         return itemDto;
     }
