@@ -1,9 +1,11 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.*;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 import ru.practicum.shareit.booking.dao.*;
 import ru.practicum.shareit.booking.dto.*;
+import ru.practicum.shareit.booking.enums.*;
 import ru.practicum.shareit.booking.model.*;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dao.*;
@@ -23,7 +25,7 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
 
     @Override
-    public BookingDtoOut create(long userId, BookingDtoIn bookingDto) {
+    public BookingDto create(long userId, BookingCreateDto bookingDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         Item item = itemRepository.findById(bookingDto.getItemId())
@@ -33,15 +35,6 @@ public class BookingServiceImpl implements BookingService {
         }
         if (item.getOwner().getId() == userId) {
             throw new NotFoundException("Нельзя забронировать собственную вещь");
-        }
-        if (bookingDto.getStart().isAfter(bookingDto.getEnd())) {
-            throw new DateException("Дата начала не может быть позже даты конца");
-        }
-        if (bookingDto.getEnd().isBefore(bookingDto.getStart())) {
-            throw new DateException("Дата конца не может быть раньше даты начала");
-        }
-        if (bookingDto.getStart().isEqual(bookingDto.getEnd())) {
-            throw new DateException("Даты начала и конца не могут совпадать");
         }
 
         Booking booking = BookingMapper.toBooking(bookingDto);
@@ -53,7 +46,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDtoOut approve(long userId, long bookingId, boolean approved) {
+    public BookingDto approve(long userId, long bookingId, boolean approved) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         Booking booking = bookingRepository.findById(bookingId)
@@ -76,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDtoOut get(long userId, long bookingId) {
+    public BookingDto get(long userId, long bookingId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         Booking booking = bookingRepository.findById(bookingId)
@@ -89,33 +82,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getAll(long userId, String state) {
+    public List<BookingDto> getAll(long userId, State state) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         List<Booking> all;
         LocalDateTime now = LocalDateTime.now();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
         switch (state) {
-            case "ALL":
-                all = bookingRepository.findByBooker_IdOrderByStartDesc(userId);
+            case ALL:
+                all = bookingRepository.findByBooker_Id(userId, sort);
                 break;
-            case "CURRENT":
-                all = bookingRepository.findByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, now, now);
+            case CURRENT:
+                all = bookingRepository.findByBooker_IdCurrent(userId, now);
                 break;
-            case "PAST":
-                all = bookingRepository.findByBooker_IdAndEndIsBeforeOrderByStartDesc(userId, now);
+            case PAST:
+                all = bookingRepository.findByBooker_IdAndEndIsBefore(userId, now, sort);
                 break;
-            case "FUTURE":
-                all = bookingRepository.findByBooker_IdAndStartIsAfterOrderByStartDesc(userId, now);
+            case FUTURE:
+                all = bookingRepository.findByBooker_IdAndStartIsAfter(userId, now, sort);
                 break;
-            case "WAITING":
-                all = bookingRepository.findByBooker_IdAndStatusIsOrderByStartDesc(userId, Status.WAITING);
+            case WAITING:
+                all = bookingRepository.findByBooker_IdAndStatusIs(userId, Status.WAITING, sort);
                 break;
-            case "REJECTED":
-                all = bookingRepository.findByBooker_IdAndStatusIsOrderByStartDesc(userId, Status.REJECTED);
+            case REJECTED:
+                all = bookingRepository.findByBooker_IdAndStatusIs(userId, Status.REJECTED, sort);
                 break;
             default:
-                throw new NotSupportedException("Unknown state: " + state);
+                all = Collections.emptyList();
         }
         return all.stream()
                 .map(BookingMapper::toBookingDto)
@@ -123,33 +117,34 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDtoOut> getAllByOwner(long userId, String state) {
+    public List<BookingDto> getAllByOwner(long userId, State state) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         List<Booking> all;
         LocalDateTime now = LocalDateTime.now();
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
         switch (state) {
-            case "ALL":
-                all = bookingRepository.findByItem_Owner_IdOrderByStartDesc(userId);
+            case ALL:
+                all = bookingRepository.findByItem_Owner_Id(userId, sort);
                 break;
-            case "CURRENT":
-                all = bookingRepository.findByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, now, now);
+            case CURRENT:
+                all = bookingRepository.findByItem_Owner_IdCurrent(userId, now);
                 break;
-            case "PAST":
-                all = bookingRepository.findByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(userId, now);
+            case PAST:
+                all = bookingRepository.findByItem_Owner_IdAndEndIsBefore(userId, now, sort);
                 break;
-            case "FUTURE":
-                all = bookingRepository.findByItem_Owner_IdAndStartIsAfterOrderByStartDesc(userId, now);
+            case FUTURE:
+                all = bookingRepository.findByItem_Owner_IdAndStartIsAfter(userId, now, sort);
                 break;
-            case "WAITING":
-                all = bookingRepository.findByItem_Owner_IdAndStatusIsOrderByStartDesc(userId, Status.WAITING);
+            case WAITING:
+                all = bookingRepository.findByItem_Owner_IdAndStatusIs(userId, Status.WAITING, sort);
                 break;
-            case "REJECTED":
-                all = bookingRepository.findByItem_Owner_IdAndStatusIsOrderByStartDesc(userId, Status.REJECTED);
+            case REJECTED:
+                all = bookingRepository.findByItem_Owner_IdAndStatusIs(userId, Status.REJECTED, sort);
                 break;
             default:
-                throw new NotSupportedException("Unknown state: " + state);
+                all = Collections.emptyList();
         }
         return all.stream()
                 .map(BookingMapper::toBookingDto)

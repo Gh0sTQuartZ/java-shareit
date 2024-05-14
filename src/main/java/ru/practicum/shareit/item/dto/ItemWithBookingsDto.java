@@ -7,12 +7,12 @@ import java.util.*;
 
 @Data
 @Builder
-public class ItemDtoWithBookings {
+public class ItemWithBookingsDto {
     private Long id;
     private String name;
     private String description;
     private Boolean available;
-    private BookingDtoForItem lastBooking;
-    private BookingDtoForItem nextBooking;
-    private List<CommentDtoOut> comments;
+    private BookingForItem lastBooking;
+    private BookingForItem nextBooking;
+    private List<CommentDto> comments;
 }

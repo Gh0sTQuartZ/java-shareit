@@ -18,19 +18,19 @@ public class ItemController {
     private final CommentService commentService;
 
     @GetMapping
-    public List<ItemDtoWithBookings> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemWithBookingsDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получение списка всех пердметов пользователя id=" + userId);
-        List<ItemDtoWithBookings> all = itemService.getAll(userId);
+        List<ItemWithBookingsDto> all = itemService.getAll(userId);
         log.info("Размер полученного списка= " + all.size());
         log.debug("Полученный список: " + all);
         return all;
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoWithBookings get(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ItemWithBookingsDto get(@RequestHeader("X-Sharer-User-Id") long userId,
                                    @PathVariable long itemId) {
         log.info("Получение предмета id=" + itemId);
-        ItemDtoWithBookings item = itemService.get(itemId, userId);
+        ItemWithBookingsDto item = itemService.get(itemId, userId);
         log.info("Полученный предмет: " + item);
         return item;
     }
@@ -67,9 +67,9 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDtoOut create(@RequestHeader("X-Sharer-User-Id") long userId,
-                                @PathVariable long itemId,
-                                @Valid @RequestBody CommentDtoIn commentDto) {
+    public CommentDto create(@RequestHeader("X-Sharer-User-Id") long userId,
+                             @PathVariable long itemId,
+                             @Valid @RequestBody CommentCreateDto commentDto) {
         return commentService.create(userId, itemId, commentDto);
     }
 

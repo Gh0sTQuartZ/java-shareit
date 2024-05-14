@@ -23,13 +23,13 @@ public class CommentServiceImpl implements CommentService {
     private final BookingRepository bookingRepository;
 
     @Override
-    public CommentDtoOut create(long userId, long itemId, CommentDtoIn commentDto) {
+    public CommentDto create(long userId, long itemId, CommentCreateDto commentDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Предмет id=" + itemId + " не найден"));
         LocalDateTime now = LocalDateTime.now();
-        List<Booking> bookings = bookingRepository.findByBooker_IdAndItem_IdAndStartIsBefore(userId, itemId, now);
+        List<Booking> bookings = bookingRepository.findCurrentOrPastBookings(userId, itemId, now);
         if (bookings.isEmpty()) {
             throw new AvailableException("Пользователь id=" + userId + "не пользовался вещью id=" + item);
         }

@@ -6,7 +6,8 @@ import ru.practicum.shareit.user.model.*;
 import javax.persistence.*;
 import java.time.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -15,9 +16,9 @@ public class Comment {
     private Long id;
     @Column(nullable = false)
     private String text;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
-    @ManyToOne
+    @ManyToOne()
     private User author;
     private LocalDateTime created;
 }

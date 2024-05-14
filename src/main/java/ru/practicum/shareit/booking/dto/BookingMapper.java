@@ -6,8 +6,8 @@ public class BookingMapper {
     private BookingMapper() {
     }
 
-    public static BookingDtoOut toBookingDto(Booking booking) {
-        return BookingDtoOut.builder()
+    public static BookingDto toBookingDto(Booking booking) {
+        return BookingDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())
                 .end(booking.getEnd())
@@ -17,15 +17,15 @@ public class BookingMapper {
                 .build();
     }
 
-    public static Booking toBooking(BookingDtoIn bookingDto) {
+    public static Booking toBooking(BookingCreateDto bookingDto) {
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
         return booking;
     }
 
-    public static BookingDtoForItem toBookingDtoForItem(Booking booking) {
-        return BookingDtoForItem.builder()
+    public static BookingForItem toBookingForItem(Booking booking) {
+        return BookingForItem.builder()
                 .id(booking.getId())
                 .bookerId(booking.getBooker().getId())
                 .build();

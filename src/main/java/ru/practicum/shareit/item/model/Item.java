@@ -5,7 +5,8 @@ import ru.practicum.shareit.user.model.*;
 
 import javax.persistence.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "items")
 public class Item {

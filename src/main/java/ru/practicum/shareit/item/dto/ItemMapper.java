@@ -24,8 +24,8 @@ public class ItemMapper {
         return item;
     }
 
-    public static ItemDtoWithBookings itemDtoWithBookings(final Item item) {
-        return ItemDtoWithBookings.builder()
+    public static ItemWithBookingsDto toItemWithBookingsDto(final Item item) {
+        return ItemWithBookingsDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())

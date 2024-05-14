@@ -6,7 +6,7 @@ import java.time.*;
 
 @Data
 @Builder
-public class CommentDtoOut {
+public class CommentDto {
     private Long id;
     private String text;
     private String authorName;

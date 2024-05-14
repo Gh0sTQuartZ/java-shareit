@@ -5,7 +5,7 @@ import lombok.*;
 import javax.validation.constraints.*;
 
 @Data
-public class CommentDtoIn {
+public class CommentCreateDto {
     @NotBlank
     String text;
 }

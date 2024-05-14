@@ -1,35 +1,55 @@
 package ru.practicum.shareit.booking.dao;
 
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.*;
+import ru.practicum.shareit.booking.enums.*;
 import ru.practicum.shareit.booking.model.*;
 
 import java.time.*;
 import java.util.*;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    List<Booking> findByBooker_IdOrderByStartDesc(long bookerId);
+    List<Booking> findByBooker_Id(long bookerId, Sort sort);
 
-    List<Booking> findByBooker_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(long bookerId, LocalDateTime start,
-                                                                               LocalDateTime before);
+    @Query("select b from Booking as b " +
+            "left join b.booker as u " +
+            "where u.id = ?1 and " +
+            "b.start <= ?2 and " +
+            "b.end > ?2 " +
+            "order by b.start desc")
+    List<Booking> findByBooker_IdCurrent(long bookerId, LocalDateTime now);
 
-    List<Booking> findByBooker_IdAndEndIsBeforeOrderByStartDesc(long bookerId, LocalDateTime end);
 
-    List<Booking> findByBooker_IdAndStartIsAfterOrderByStartDesc(long bookerId, LocalDateTime start);
+    List<Booking> findByBooker_IdAndEndIsBefore(long bookerId, LocalDateTime end, Sort sort);
 
-    List<Booking> findByBooker_IdAndStatusIsOrderByStartDesc(long bookerId, Status status);
+    List<Booking> findByBooker_IdAndStartIsAfter(long bookerId, LocalDateTime start, Sort sort);
 
-    List<Booking> findByItem_Owner_IdOrderByStartDesc(long bookerId);
+    List<Booking> findByBooker_IdAndStatusIs(long bookerId, Status status, Sort sort);
 
-    List<Booking> findByItem_Owner_IdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(long bookerId, LocalDateTime start,
-                                                                                   LocalDateTime before);
+    List<Booking> findByItem_Owner_Id(long bookerId, Sort sort);
 
-    List<Booking> findByItem_Owner_IdAndEndIsBeforeOrderByStartDesc(long bookerId, LocalDateTime end);
+    @Query("select b from Booking as b " +
+            "left join b.item as i " +
+            "left join i.owner as u " +
+            "where u.id = ?1 and " +
+            "b.start <= ?2 and " +
+            "b.end > ?2 " +
+            "order by b.start desc")
+    List<Booking> findByItem_Owner_IdCurrent(long bookerId, LocalDateTime now);
 
-    List<Booking> findByItem_Owner_IdAndStartIsAfterOrderByStartDesc(long bookerId, LocalDateTime start);
+    List<Booking> findByItem_Owner_IdAndEndIsBefore(long bookerId, LocalDateTime end, Sort sort);
 
-    List<Booking> findByItem_Owner_IdAndStatusIsOrderByStartDesc(long bookerId, Status status);
+    List<Booking> findByItem_Owner_IdAndStartIsAfter(long bookerId, LocalDateTime start, Sort sort);
 
-    List<Booking> findByItem_IdAndStatusNotOrderByStart(long itemId, Status status);
+    List<Booking> findByItem_Owner_IdAndStatusIs(long bookerId, Status status, Sort sort);
 
-    List<Booking> findByBooker_IdAndItem_IdAndStartIsBefore(long userId, long itemId, LocalDateTime start);
+    @Query("select b from Booking as b " +
+            "left join b.booker as u " +
+            "left join b.item as i " +
+            "where u.id = ?1 and " +
+            "i.id = ?2 and " +
+            "b.start <= ?3")
+    List<Booking> findCurrentOrPastBookings(long userId, long itemId, LocalDateTime start);
+
+    List<Booking> findByItem_IdAndStatusIs(Long itemId, Status status, Sort sort);
 }

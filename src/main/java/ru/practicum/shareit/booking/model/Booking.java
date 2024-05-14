@@ -1,13 +1,15 @@
 package ru.practicum.shareit.booking.model;
 
 import lombok.*;
+import ru.practicum.shareit.booking.enums.*;
 import ru.practicum.shareit.item.model.*;
 import ru.practicum.shareit.user.model.*;
 
 import javax.persistence.*;
 import java.time.*;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "bookings")
 public class Booking {

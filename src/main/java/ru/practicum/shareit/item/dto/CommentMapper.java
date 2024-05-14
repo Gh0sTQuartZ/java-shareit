@@ -7,14 +7,14 @@ public class CommentMapper {
 
     }
 
-    public static Comment toComment(CommentDtoIn commentDto) {
+    public static Comment toComment(CommentCreateDto commentDto) {
         Comment comment = new Comment();
         comment.setText(commentDto.getText());
         return comment;
     }
 
-    public static CommentDtoOut toCommentDto(Comment comment) {
-        return CommentDtoOut.builder()
+    public static CommentDto toCommentDto(Comment comment) {
+        return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
                 .authorName(comment.getAuthor().getName())
