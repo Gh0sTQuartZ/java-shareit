@@ -32,4 +32,8 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .build();
     }
+
+    public static void setBookings() {
+
+    }
 }

@@ -4,7 +4,6 @@ import lombok.*;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.*;
 import ru.practicum.shareit.booking.dao.*;
-import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.booking.enums.*;
 import ru.practicum.shareit.booking.model.*;
 import ru.practicum.shareit.exception.*;
@@ -30,20 +29,23 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemWithBookingsDto> getAll(long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь id=" + userId + " не найден"));
-        List<ItemWithBookingsDto> itemDto = itemRepository.findByOwner_Id(userId,
-                        Sort.by(Sort.DEFAULT_DIRECTION, "id")).stream()
-                .map(ItemMapper::toItemWithBookingsDto)
-                .collect(Collectors.toList());
-        List<Booking> bookings = bookingRepository.findByItem_Owner_IdAndStatusIs(userId, Status.APPROVED,
-                Sort.by(Sort.Direction.ASC, "start"));
-        List<Comment> comments = commentRepository.findByItem_Owner_id(userId);
-        itemDto.stream().forEach(i -> {
-            setBookings(i,
-                    bookings.stream().filter(b -> b.getItem().getId().equals(i.getId())).collect(Collectors.toList()));
-            setComments(i,
-                    comments.stream().filter(c -> c.getItem().getId().equals(i.getId())).collect(Collectors.toList()));
-        });
-        return itemDto;
+        List<Item> items = itemRepository.findByOwner_Id(userId,
+                Sort.by(Sort.DEFAULT_DIRECTION, "id"));
+
+        Map<Long, List<Booking>> bookings = bookingRepository.findByItem_Owner_IdAndStatusIs(userId, Status.APPROVED,
+                        Sort.by(Sort.Direction.ASC, "start")).stream()
+                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+        Map<Long, List<Comment>> comments = commentRepository.findByItem_Owner_id(userId).stream()
+                .collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
+
+        List<ItemWithBookingsDto> itemsDto = new ArrayList<>();
+        for (Item i : items) {
+            ItemWithBookingsDto itemWithBookingsDto = ItemMapper.toItemWithBookingsDto(i);
+            setBookings(itemWithBookingsDto, bookings.getOrDefault(i.getId(), Collections.emptyList()));
+            setComments(itemWithBookingsDto, comments.getOrDefault(i.getId(), Collections.emptyList()));
+            itemsDto.add(itemWithBookingsDto);
+        }
+        return itemsDto;
     }
 
     @Override
@@ -116,10 +118,10 @@ public class ItemServiceImpl implements ItemService {
                 .filter(b -> b.getStart().isAfter(now))
                 .findFirst();
         if (!lastBookings.isEmpty()) {
-            item.setLastBooking(BookingMapper.toBookingForItem(lastBookings.get(lastBookings.size() - 1)));
+            item.setLastBooking(lastBookings.get(lastBookings.size() - 1));
         }
         if (nextBooking.isPresent()) {
-            item.setNextBooking(BookingMapper.toBookingForItem(nextBooking.get()));
+            item.setNextBooking(nextBooking.get());
         }
     }
 

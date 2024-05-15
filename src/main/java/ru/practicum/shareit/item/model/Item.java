@@ -19,6 +19,6 @@ public class Item {
     private String description;
     @Column(nullable = false)
     private Boolean available;
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
 }

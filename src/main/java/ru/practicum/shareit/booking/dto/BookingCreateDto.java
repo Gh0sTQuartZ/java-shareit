@@ -18,10 +18,9 @@ public class BookingCreateDto {
 
     @AssertTrue(message = "Ошибка валидации времени")
     public boolean isTimeValid() {
-        if (start != null && end != null) {
-            return !(start.equals(end) || end.isBefore(start));
-        } else {
+        if (start == null || end == null) {
             return false;
         }
+        return end.isAfter(start);
     }
 }

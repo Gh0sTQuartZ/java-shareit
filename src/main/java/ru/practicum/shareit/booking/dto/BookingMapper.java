@@ -23,11 +23,4 @@ public class BookingMapper {
         booking.setEnd(bookingDto.getEnd());
         return booking;
     }
-
-    public static BookingForItem toBookingForItem(Booking booking) {
-        return BookingForItem.builder()
-                .id(booking.getId())
-                .bookerId(booking.getBooker().getId())
-                .build();
-    }
 }
