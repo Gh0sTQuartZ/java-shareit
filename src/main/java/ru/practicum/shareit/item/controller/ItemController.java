@@ -14,21 +14,23 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
-    private final ItemService service;
+    private final ItemService itemService;
+    private final CommentService commentService;
 
     @GetMapping
-    public List<ItemDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemWithBookingsDto> getAll(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Получение списка всех пердметов пользователя id=" + userId);
-        List<ItemDto> all = service.getAll(userId);
+        List<ItemWithBookingsDto> all = itemService.getAll(userId);
         log.info("Размер полученного списка= " + all.size());
         log.debug("Полученный список: " + all);
         return all;
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto get(@PathVariable long itemId) {
+    public ItemWithBookingsDto get(@RequestHeader("X-Sharer-User-Id") long userId,
+                                   @PathVariable long itemId) {
         log.info("Получение предмета id=" + itemId);
-        ItemDto item = service.get(itemId);
+        ItemWithBookingsDto item = itemService.get(itemId, userId);
         log.info("Полученный предмет: " + item);
         return item;
     }
@@ -37,7 +39,7 @@ public class ItemController {
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") long userId,
                           @Valid @RequestBody ItemDto itemDto) {
         log.info("Добавление предмета пользователем id=" + userId);
-        ItemDto item = service.create(userId, itemDto);
+        ItemDto item = itemService.create(userId, itemDto);
         log.info("id созданного предмета = " + item.getId());
         log.debug("Созданный предмет: " + item);
         return item;
@@ -49,7 +51,7 @@ public class ItemController {
                           @RequestBody ItemDto itemDto) {
         log.info("Изменение предмета id=" + itemId);
         itemDto.setId(itemId);
-        ItemDto update = service.update(userId, itemDto);
+        ItemDto update = itemService.update(userId, itemDto);
         log.info("Предмет id=" + itemId + " изменён");
         log.debug("Изменённый предмет: " + update);
         return update;
@@ -58,9 +60,17 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam String text) {
         log.info("Поиск предмета по ключевому слову=" + text);
-        List<ItemDto> search = service.search(text);
+        List<ItemDto> search = itemService.search(text);
         log.info("Количество найденных предметов=" + search.size());
         log.debug("Найденные предметы: " + search);
         return search;
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto create(@RequestHeader("X-Sharer-User-Id") long userId,
+                             @PathVariable long itemId,
+                             @Valid @RequestBody CommentCreateDto commentDto) {
+        return commentService.create(userId, itemId, commentDto);
+    }
+
 }
